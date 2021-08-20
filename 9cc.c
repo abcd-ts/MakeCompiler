@@ -35,6 +35,23 @@ void error(char *fmt, ...) {
 	exit(1);
 }
 
+// 入力
+char *user_input;
+
+// エラー箇所報告
+void error_at(char *loc, char *fmt, ...) {
+	va_list ap;
+	va_start(ap, fmt);
+
+	int pos = loc - user_input;
+	fprintf(stderr, "%s\n", user_input);
+	fprintf(stderr, "%*s", pos, " ");
+	fprintf(stderr, "^ ");
+	vfprintf(stderr, fmt, ap);
+	fprintf(stderr, "\n");
+	exit(1);
+}
+
 // トークンを読み進める
 // 期待している記号なら真，そうでなければ偽
 bool consume(char op) {
@@ -49,7 +66,7 @@ bool consume(char op) {
 // 期待している記号なら読み進めるだけで，そうでなければエラーを報告
 void expect(char op) {
 if (token->kind != TK_RESERVED || token->str[0] != op) {
-		error("'%cではありません", op);
+		error_at(token->str, "'%cではありません", op);
 	}
 	token = token->next;
 }
@@ -58,7 +75,7 @@ if (token->kind != TK_RESERVED || token->str[0] != op) {
 // 数値でない場合，エラーを報告する．
 int expect_number() {
 	if (token->kind != TK_NUM) {
-		error("数ではありません");
+		error_at(token->str, "数ではありません");
 	}
 	int val = token->val;
 	token = token->next;
@@ -104,7 +121,7 @@ Token *tokenize(char *p) {
 			continue;
 		}
 
-		error("tokenizeできません");
+		error_at(token->str, "tokenizeできません");
 	}
 
 	new_token(TK_EOF, cur, p);
@@ -117,6 +134,9 @@ int main(int argc, char **argv) {
         return 1;
     }
 
+	// 入力を覚えておく
+	user_input = argv[1];
+	
 	// トークナイズする
 	token = tokenize(argv[1]);
 
