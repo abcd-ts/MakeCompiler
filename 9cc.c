@@ -15,6 +15,7 @@ typedef enum {
 typedef struct Token Token;
 
 // Token型
+// 連結リストでトークン列を表現する
 struct Token {
 	TokenKind kind;
 	Token *next;
@@ -23,6 +24,7 @@ struct Token {
 };
 
 // 現在着目しているトークン
+// 特定の関数(consume, expect, expect_number)以外では触らない
 Token *token;
 
 void error(char *fmt, ...) {
@@ -43,7 +45,8 @@ bool consume(char op) {
 	return true;
 }
 
-
+// トークンを読み進める
+// 期待している記号なら読み進めるだけで，そうでなければエラーを報告
 void expect(char op) {
 if (token->kind != TK_RESERVED || token->str[0] != op) {
 		error("'%cではありません", op);
@@ -77,6 +80,7 @@ Token *new_token(TokenKind kind, Token *cur, char *str) {
 }
 
 // トークナイズする
+// headというダミーの要素を用いる，headの次の要素を返す
 Token *tokenize(char *p) {
 	Token head;
 	head.next = NULL;
