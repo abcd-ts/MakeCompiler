@@ -163,6 +163,10 @@ typedef enum {
 	ND_MUL,
 	ND_DIV,
 	ND_NUM,
+	ND_EQ,
+	ND_NEQ,
+	ND_LEQ,
+	ND_LE,
 } NodeKind;
 
 typedef struct Node Node;
@@ -189,12 +193,60 @@ Node *new_node_num(int val) {
 	return node;
 }
 
+Node *equality();
+Node *relational();
+Node *add();
 Node *mul();
 Node *primary();
 Node *unary();
 
-// expr -> mul ('+' mul | '-' mul)*
+// expr = equality
 Node *expr() {
+	return equality();
+}
+
+// equality = relational ("==" relational | "!=" relational)*
+Node *equality() {
+	Node *node = relational();
+
+	for (;;) {
+		if (consume("==")) {
+			node = new_node(ND_EQ, node, relational());
+		}
+		else if (consume("!=")) {
+			node = new_node(ND_NEQ, node, relational());
+		}
+		else {
+			return node;
+		}
+	}
+}
+
+// relational = add ("<" add | "<=" add | ">" add | ">=" add)*
+Node *relational() {
+	Node *node = add();
+
+	for (;;) {
+		if (consume("<")) {
+			node = new_node(ND_LE, node, add());
+		}
+		else if (consume("<=")) {
+			node = new_node(ND_LEQ, node, add());
+		}
+		else if (consume(">")) {
+			node = new_node(ND_LE, add(), node);
+		}
+		else if (consume(">=")) {
+			node = new_node(ND_LEQ, add(), node);
+		}
+		else {
+			return node;
+		}
+	}
+}
+
+// add = mul ('+' mul | '-' mul)*
+Node *add() {
 	Node *node = mul();
 
 	for (;;) {
@@ -210,7 +262,7 @@ Node *expr() {
 	}
 }
 
-// mul -> unary ('*' unary | '/' unary)*
+// mul = unary ('*' unary | '/' unary)*
 Node *mul() {
 	Node *node = unary();
 
@@ -227,7 +279,7 @@ Node *mul() {
 	}
 }
 
-// unary -> ('+'|'-')? primary
+// unary = ('+'|'-')? primary
 Node *unary() {
 	if (consume("+")) {
 		return primary();
@@ -238,7 +290,7 @@ Node *unary() {
 	return primary();
 }
 
-// primary -> num | '(' expr ')'
+// primary = num | '(' expr ')'
 Node *primary() {
 	if (consume("(")) {
 		Node *node = expr();
@@ -279,6 +331,26 @@ void gen(Node *node) {
 	case ND_DIV:
 		printf("    cqo\n");
 		printf("    idiv rdi\n");
+		break;
+	case ND_EQ:
+		printf("    cmp rax, rdi\n");
+		printf("    sete al\n");
+		printf("    movzb rax, al\n");
+		break;
+	case ND_NEQ:
+		printf("    cmp rax, rdi\n");
+		printf("    setne al\n");
+		printf("    movzb rax, al\n");
+		break;
+	case ND_LE:
+		printf("    cmp rax, rdi\n");
+		printf("    setl al\n");
+		printf("    movzb rax, al\n");
+		break;
+	case ND_LEQ:
+		printf("    cmp rax, rdi\n");
+		printf("    setle al\n");
+		printf("    movzb rax, al\n");
 		break;
 	}
 
