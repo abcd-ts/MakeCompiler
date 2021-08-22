@@ -346,7 +346,7 @@ void gen(Node *node) {
 		break;
 	case ND_LEQ:
 		printf("    cmp rax, rdi\n");
-		printf("    setlez al\n");
+		printf("    setle al\n");
 		printf("    movzb rax, al\n");
 		break;
 	}
