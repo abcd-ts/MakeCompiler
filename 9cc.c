@@ -129,10 +129,7 @@ Token *tokenize(char *p) {
 		}
 
 		// 長さ1の記号
-		if (*p == '+' || *p == '-' || *p == '*' || *p == '/' 
-			|| *p == '(' || *p == ')'
-			|| *p == '<' || *p == '>'
-			) {
+		if (strchr("+-*/()<>", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
 			continue;
 		}
@@ -349,7 +346,7 @@ void gen(Node *node) {
 		break;
 	case ND_LEQ:
 		printf("    cmp rax, rdi\n");
-		printf("    setle al\n");
+		printf("    setlez al\n");
 		printf("    movzb rax, al\n");
 		break;
 	}
