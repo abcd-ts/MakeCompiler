@@ -31,7 +31,7 @@ struct Token {
 
 // 現在着目しているトークン
 // 特定の関数(consume, expect, expect_number)以外では触らない
-extern Token *token;
+//extern Token *token;
 
 void error(char *fmt, ...);
 
@@ -63,7 +63,7 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 
 // トークナイズする
 // headというダミーの要素を用いる，headの次の要素を返す
-Token *tokenize(char *p);
+void tokenize(char *p);
 
 // ------------
 // --構文解析---
@@ -112,7 +112,9 @@ Node *primary();
 Node *unary();
 
 // ---------------
-// -- コンパイル --
+// -- コード生成 --
 // ---------------
 
 void gen(Node *node);
+
+void gen_lval(Node *node);

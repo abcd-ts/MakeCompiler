@@ -99,7 +99,7 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
 
 // トークナイズする
 // headというダミーの要素を用いる，headの次の要素を返す
-Token *tokenize(char *p) {
+void tokenize(char *p) {
 	Token head;
 	head.next = NULL;
 	Token *cur = &head;
@@ -142,7 +142,7 @@ Token *tokenize(char *p) {
 	}
 
 	new_token(TK_EOF, cur, p, 0);
-	return head.next;
+	token = head.next;
 }
 
 // ------------
