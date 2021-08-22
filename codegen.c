@@ -10,6 +10,10 @@ int num_end = 0;
 int num_else = 0;
 int num_begin = 0;
 
+void gen_lvar(Node *node);
+void gen_if(Node *node);
+void gen_while(Node *node);
+
 void gen(Node *node) {
 	// 整数またはローカル変数，代入式，return文
 	switch (node->kind) {
@@ -40,33 +44,10 @@ void gen(Node *node) {
 		printf("    ret\n");
 		return;
 	case ND_IF:
-		gen(node->cond);
-		// スタックトップに条件式の結果
-		printf("    pop rax\n");
-		printf("    cmp rax, 0\n");
-		if (!node->rhs) {
-			printf("    je .Lend%d\n", num_end);
-			gen(node->lhs);
-			printf(".Lend%d:\n", num_end++);
-		}
-		else {
-			printf("    je .Lelse%d\n", num_else);
-			gen(node->lhs);
-			printf("    jmp .Lend%d\n", num_end);
-			printf(".Lelse%d:\n", num_else++);
-			gen(node->rhs);
-			printf(".Lend%d:\n", num_end++);
-		}
+		gen_if(node);
 		return;
 	case ND_WHILE:
-		printf(".Lbegin%d:\n", num_begin);
-		gen(node->cond);
-		printf("    pop rax\n");
-		printf("    cmp rax, 0\n");
-		printf("    je .Lend%d\n", num_end);
-		gen(node->lhs);
-		printf("    jmp .Lbegin%d\n", num_begin++);
-		printf(".Lend%d:\n", num_end++);
+		gen_while(node);
 		return;
 	}
 
@@ -124,4 +105,39 @@ void gen_lval(Node *node) {
 	printf("    mov rax, rbp\n");	// raxにベースポインタの値を読み込む
 	printf("    sub rax, %d\n", node->offset);	// raxにオフセットを減算
 	printf("    push rax\n");
+}
+
+void gen_if(Node *node) {
+	int lend = num_end++, lelse = num_else++;
+
+	gen(node->cond);
+	// スタックトップに条件式の結果
+	printf("    pop rax\n");
+	printf("    cmp rax, 0\n");
+	if (!node->rhs) {
+		printf("    je .Lend%d\n", lend);
+		gen(node->lhs);
+		printf(".Lend%d:\n", lend);
+	}
+	else {
+		printf("    je .Lelse%d\n", lelse);
+		gen(node->lhs);
+		printf("    jmp .Lend%d\n", lend);
+		printf(".Lelse%d:\n", lelse);
+		gen(node->rhs);
+		printf(".Lend%d:\n", lend);
+	}
+}
+
+void gen_while(Node *node) {
+	int lbegin = num_begin++, lend = num_end++;
+
+	printf(".Lbegin%d:\n", lbegin);
+	gen(node->cond);
+	printf("    pop rax\n");
+	printf("    cmp rax, 0\n");
+	printf("    je .Lend%d\n", lend);
+	gen(node->lhs);
+	printf("    jmp .Lbegin%d\n", lbegin);
+	printf(".Lend%d:\n", lend);
 }

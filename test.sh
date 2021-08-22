@@ -46,4 +46,6 @@ assert 3 "if (0) 2; else 3;"
 
 assert 0 "i = 3; while(i) i = i - 1;"
 
+assert 4 "if (0) if (0) 2; else 3; else 4;"
+
 echo OK
