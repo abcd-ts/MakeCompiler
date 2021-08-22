@@ -126,16 +126,23 @@ void tokenize(char *p) {
 			continue;
 		}
 
-		if ('a' <= *p && *p <= 'z') {
-			cur = new_token(TK_IDENT, cur, p++, 1);
-			continue;
-		}
-
 		if (isdigit(*p)) {
 			cur = new_token(TK_NUM, cur, p, 0);
 			char *q = p;
 			cur->val = strtol(p, &p, 10);
 			cur->len = p - q;
+			continue;
+		}
+
+		bool var = false;
+		char *q = p;
+		while (isalpha(*p)) {
+			var = true;
+			p++;
+		}
+		
+		if (var) {
+			cur = new_token(TK_IDENT, cur, q, p - q);
 			continue;
 		}
 
