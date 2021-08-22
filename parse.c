@@ -44,9 +44,9 @@ void error_at(char *loc, char *fmt, ...) {
 // トークンを読み進める
 // 期待している記号なら真，そうでなければ偽
 bool consume(char *op) {
-	if (token->kind != TK_RESERVED
-		|| strlen(op) != token->len
+	if (token->kind != TK_RESERVED || strlen(op) != token->len
 		|| memcmp(token->str, op, token->len)) {
+		//printf("token is not \"%s\"\n", op);
 		return false;
 	}
 	token = token->next;
@@ -56,10 +56,9 @@ bool consume(char *op) {
 // トークンを読み進める
 // 期待している記号なら読み進めるだけで，そうでなければエラーを報告
 void expect(char *op) {
-if (token->kind != TK_RESERVED
-		|| strlen(op) != token->len
-		|| memcmp(token->str, op, token->len)) {
-		error_at(token->str, "%sではありません", op);
+if (token->kind != TK_RESERVED || strlen(op) != token->len
+	|| memcmp(token->str, op, token->len)) {
+		error_at(token->str, "\"%s\"ではありません", op);
 	}
 	token = token->next;
 }
@@ -77,9 +76,11 @@ int expect_number() {
 
 Token *consume_ident() {
 	if (token->kind != TK_IDENT) {
-		return 0;
+		return NULL;
 	}
-	return token;
+	Token *tok = token;
+	token = token->next;
+	return tok;
 }
 
 // 入力の終わりかどうかを調べる
