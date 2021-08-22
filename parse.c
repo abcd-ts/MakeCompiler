@@ -296,7 +296,7 @@ Node *primary() {
 
 	if (tok) {
 		Node *node = calloc(1, sizeof(Node));
-		node->kind = ND_ASSIGN;
+		node->kind = ND_LVAR;
 		node->offset = (tok->str[0] - 'a' + 1) * 8; // a:8, b:16, ... z:26*8
 		return node; 
 	}

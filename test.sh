@@ -33,4 +33,8 @@ assert 1 "11 * 9 < 10 * 10;"
 assert 1 "20 <= -4 * -5;"
 assert 0 "40 >= 9 * 5;"
 
+assert 3 "a=3;"
+assert 2 "a=b=2;"
+assert 4 "a=b=2; a+b;"
+
 echo OK
