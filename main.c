@@ -17,31 +17,7 @@ int main(int argc, char **argv) {
 	tokenize(user_input);
 	program();
 
-	// アセンブリの前半部分を出力
-    printf(".intel_syntax noprefix\n");
-    printf(".globl main\n");
-    printf("main:\n");
-
-	// prologue
-	// 変数26個(a~z)分の領域を確保する
-	printf("    push rbp\n");
-	printf("    mov rbp, rsp\n");
-	printf("    sub rsp, 208\n");
-
-	// ASTからコード生成
-	int i;
-	for (i = 0; code[i] != NULL; i++) {
-		gen(code[i]);
-
-		// 1つの式の評価結果がスタックに残っているため
-		// これをpopしてraxに入れておく
-		printf("    pop rax\n");
-	}
-
-	// epilogue
-	// スタックトップの値が答え
-	printf("    mov rsp, rbp\n");
-	printf("    pop rbp\n");
-	printf("    ret\n");
+	codegen();
+	
 	return 0;
 }

@@ -160,4 +160,4 @@ LVar *find_lvar(Token *tok);
 // ---------------
 
 // nodeに対応するコードを生成
-void gen(Node *node);
+void codegen();
