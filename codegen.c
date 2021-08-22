@@ -160,9 +160,9 @@ void gen_for(Node *node) {
 		printf("    cmp rax, 0\n");
 		printf("    je .Lend%d\n", lend);
 	}
-	gen(node->rhs->lhs);
-	if (node->rhs->rhs) {
-		gen(node->rhs->rhs);
+	gen(node->rhs);
+	if (node->inc) {
+		gen(node->inc);
 	}
 	printf("    jmp .Lbegin%d\n", lbegin);
 	printf(".Lend%d:\n", lend);

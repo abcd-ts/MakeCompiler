@@ -102,7 +102,6 @@ typedef enum {
 	ND_IF,
 	ND_WHILE,
 	ND_FOR,
-	ND_CONC,	// for (A; B; C) DのD, Cを格納するノード
 } NodeKind;
 
 typedef struct Node Node;
@@ -112,6 +111,7 @@ struct Node {
 	Node *cond;	// 条件式
 	Node *lhs;
 	Node *rhs;
+	Node *inc;	// for文の第3引数
 	int val;	// ND_NUMのときに使用
 	int offset;	// ND_LVARのときに使用
 };

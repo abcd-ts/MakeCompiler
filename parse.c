@@ -93,20 +93,16 @@ Node *stmt() {
 			expect(";");
 		}
 
-		Node *conc;
-		conc = calloc(1, sizeof(Node));
-		conc->kind = ND_CONC;
 		if (!consume(")")) {
-			conc->rhs = expr();
+			node->inc = expr();
 			expect(")");
 		}
 		else {
-			conc->rhs = NULL;
+			node->inc = NULL;
 		}
 		
-		conc->lhs = stmt();
+		node->rhs = stmt();
 		
-		node->rhs = conc;
 		return node;
 	}
 	else {
