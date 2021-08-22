@@ -74,6 +74,8 @@ int expect_number() {
 	return val;
 }
 
+// 識別子の消費を試みる
+// 識別子ならトークンを読み進めて識別子トークンを返し，そうでなければNULLを返す
 Token *consume_ident() {
 	if (token->kind != TK_IDENT) {
 		return NULL;
@@ -126,6 +128,7 @@ void tokenize(char *p) {
 			continue;
 		}
 
+		// number
 		if (isdigit(*p)) {
 			cur = new_token(TK_NUM, cur, p, 0);
 			char *q = p;
@@ -134,15 +137,13 @@ void tokenize(char *p) {
 			continue;
 		}
 
-		bool var = false;
-		char *q = p;
-		while (isalpha(*p)) {
-			var = true;
-			p++;
-		}
-		
-		if (var) {
-			cur = new_token(TK_IDENT, cur, q, p - q);
+		// identifier
+		if (isalpha(*p)) {
+			char *start = p;
+			while (isalpha(*p)) {
+				p++;
+			}
+			cur = new_token(TK_IDENT, cur, start, p - start);
 			continue;
 		}
 
@@ -293,12 +294,14 @@ Node *unary() {
 
 // primary = num | ident | '(' expr ')'
 Node *primary() {
+	// '(' expr ')'
 	if (consume("(")) {
 		Node *node = expr();
 		expect(")");
 		return node;
 	}
 
+	// ident
 	Token *tok = consume_ident();
 
 	if (tok) {
@@ -326,9 +329,11 @@ Node *primary() {
 		return node; 
 	}
 
+	// num
 	return new_node_num(expect_number());
 }
 
+// ローカル変数の連結リスト
 LVar *locals = NULL;
 
 // 変数を名前で検索する．見つからなければNULLを返す
