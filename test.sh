@@ -48,4 +48,7 @@ assert 0 "i = 3; while(i) i = i - 1;"
 
 assert 4 "if (0) if (0) 2; else 3; else 4;"
 
+assert 6 "sum = 0; for(i = 1; i < 4; i = i + 1) sum = sum + i; sum;"
+assert 4 "i = 0; for (;;) if (i == 4) return i; else i = i + 1;"
+
 echo OK

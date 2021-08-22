@@ -37,6 +37,7 @@ void program() {
 	stmt = expr ';' | "return" expr ';'
 		 | "if (" expr ")" stmt ("else" stmt)? 
 		 | "while (" expr ")" stmt
+		 | "for (" expr? ";" expr? ";" expr? ")" stmt
 */
 Node *stmt() {
 	Node *node;
@@ -70,6 +71,42 @@ Node *stmt() {
 		expect(")");
 		node->lhs = stmt();
 
+		return node;
+	}
+	else if (consume_for()) {
+		expect("(");
+		node = calloc(1, sizeof(Node));
+		node->kind = ND_FOR;
+		if (consume(";")) {
+			node->lhs = NULL;
+		}
+		else {
+			node->lhs = expr();
+			expect(";");
+		}
+
+		if (consume(";")) {
+			node->cond = NULL;
+		}
+		else {
+			node->cond = expr();
+			expect(";");
+		}
+
+		Node *conc;
+		conc = calloc(1, sizeof(Node));
+		conc->kind = ND_CONC;
+		if (!consume(")")) {
+			conc->rhs = expr();
+			expect(")");
+		}
+		else {
+			conc->rhs = NULL;
+		}
+		
+		conc->lhs = stmt();
+		
+		node->rhs = conc;
 		return node;
 	}
 	else {

@@ -21,6 +21,7 @@ typedef enum {
 	TK_IF,
 	TK_ELSE,
 	TK_WHILE,
+	TK_FOR,
 } TokenKind;
 
 typedef struct Token Token;
@@ -68,6 +69,8 @@ Token *consume_else();
 
 Token *consume_while();
 
+Token *consume_for();
+
 // 入力の終わりかどうかを調べる
 bool at_eof();
 
@@ -98,6 +101,8 @@ typedef enum {
 	ND_RETURN,	// return
 	ND_IF,
 	ND_WHILE,
+	ND_FOR,
+	ND_CONC,	// for (A; B; C) DのD, Cを格納するノード
 } NodeKind;
 
 typedef struct Node Node;
@@ -156,6 +161,3 @@ LVar *find_lvar(Token *tok);
 
 // nodeに対応するコードを生成
 void gen(Node *node);
-
-// ローカル変数に対応するコードを生成
-void gen_lval(Node *node);

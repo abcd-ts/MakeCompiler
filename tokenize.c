@@ -119,6 +119,17 @@ Token *consume_while() {
 	return tok;
 }
 
+// "for"の消費を試みる
+// forトークンなら読み進めてそれを返し，そうでなければNULLを返す
+Token *consume_for() {
+	if (token->kind != TK_FOR) {
+		return NULL;
+	}
+	Token *tok = token;
+	token = token->next;
+	return tok;
+}
+
 // 入力の終わりかどうかを調べる
 bool at_eof() {
 	return token->kind == TK_EOF;
@@ -205,6 +216,13 @@ void tokenize(char *p) {
 		if (strncmp(p, "while", 5) == 0 && !is_alnum(*(p + 5))) {
 			cur = new_token(TK_WHILE, cur, p, 5);
 			p += 5;
+			continue;
+		}
+
+		// for
+		if (strncmp(p, "for", 3) == 0 && !is_alnum(*(p + 3))) {
+			cur = new_token(TK_FOR, cur, p, 3);
+			p += 3;
 			continue;
 		}
 

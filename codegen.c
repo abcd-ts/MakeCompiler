@@ -10,9 +10,10 @@ int num_end = 0;
 int num_else = 0;
 int num_begin = 0;
 
-void gen_lvar(Node *node);
+void gen_lval(Node *node);
 void gen_if(Node *node);
 void gen_while(Node *node);
+void gen_for(Node *node);
 
 void gen(Node *node) {
 	// 整数またはローカル変数，代入式，return文
@@ -48,6 +49,9 @@ void gen(Node *node) {
 		return;
 	case ND_WHILE:
 		gen_while(node);
+		return;
+	case ND_FOR:
+		gen_for(node);
 		return;
 	}
 
@@ -138,6 +142,28 @@ void gen_while(Node *node) {
 	printf("    cmp rax, 0\n");
 	printf("    je .Lend%d\n", lend);
 	gen(node->lhs);
+	printf("    jmp .Lbegin%d\n", lbegin);
+	printf(".Lend%d:\n", lend);
+}
+
+void gen_for(Node *node) {
+	int lbegin = num_begin++, lend = num_end++;
+
+	if (node->lhs) {
+		gen(node->lhs);
+	}
+
+	printf(".Lbegin%d:\n", lbegin);
+	if (node->cond) {
+		gen(node->cond);
+		printf("    pop rax\n");
+		printf("    cmp rax, 0\n");
+		printf("    je .Lend%d\n", lend);
+	}
+	gen(node->rhs->lhs);
+	if (node->rhs->rhs) {
+		gen(node->rhs->rhs);
+	}
 	printf("    jmp .Lbegin%d\n", lbegin);
 	printf(".Lend%d:\n", lend);
 }
