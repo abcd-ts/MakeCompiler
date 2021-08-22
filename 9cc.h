@@ -20,6 +20,7 @@ typedef enum {
 	TK_RETURN,		// return
 	TK_IF,
 	TK_ELSE,
+	TK_WHILE,
 } TokenKind;
 
 typedef struct Token Token;
@@ -65,6 +66,8 @@ Token *consume_return();
 Token *consume_if();
 Token *consume_else();
 
+Token *consume_while();
+
 // 入力の終わりかどうかを調べる
 bool at_eof();
 
@@ -94,6 +97,7 @@ typedef enum {
 	ND_LVAR,	// ローカル変数
 	ND_RETURN,	// return
 	ND_IF,
+	ND_WHILE,
 } NodeKind;
 
 typedef struct Node Node;

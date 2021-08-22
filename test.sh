@@ -43,6 +43,7 @@ assert 5 "return 5; return 8;"
 
 assert 2 "if (1) 2;"
 assert 3 "if (0) 2; else 3;"
-assert 0 "if (0) 2;"
+
+assert 0 "i = 3; while(i) i = i - 1;"
 
 echo OK

@@ -8,6 +8,7 @@
 
 int num_end = 0;
 int num_else = 0;
+int num_begin = 0;
 
 void gen(Node *node) {
 	// 整数またはローカル変数，代入式，return文
@@ -56,6 +57,16 @@ void gen(Node *node) {
 			gen(node->rhs);
 			printf(".Lend%d:\n", num_end++);
 		}
+		return;
+	case ND_WHILE:
+		printf(".Lbegin%d:\n", num_begin);
+		gen(node->cond);
+		printf("    pop rax\n");
+		printf("    cmp rax, 0\n");
+		printf("    je .Lend%d\n", num_end);
+		gen(node->lhs);
+		printf("    jmp .Lbegin%d\n", num_begin++);
+		printf(".Lend%d:\n", num_end++);
 		return;
 	}
 

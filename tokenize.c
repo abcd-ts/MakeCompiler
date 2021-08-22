@@ -108,6 +108,17 @@ Token *consume_else() {
 	return tok;
 }
 
+// "while"の消費を試みる
+// whileトークンなら読み進めてそれを返し，そうでなければNULLを返す
+Token *consume_while() {
+	if (token->kind != TK_WHILE) {
+		return NULL;
+	}
+	Token *tok = token;
+	token = token->next;
+	return tok;
+}
+
 // 入力の終わりかどうかを調べる
 bool at_eof() {
 	return token->kind == TK_EOF;
@@ -187,6 +198,13 @@ void tokenize(char *p) {
 		if (strncmp(p, "else", 4) == 0 && !is_alnum(*(p + 4))) {
 			cur = new_token(TK_ELSE, cur, p, 4);
 			p += 4;
+			continue;
+		}
+
+		// while
+		if (strncmp(p, "while", 5) == 0 && !is_alnum(*(p + 5))) {
+			cur = new_token(TK_WHILE, cur, p, 5);
+			p += 5;
 			continue;
 		}
 
