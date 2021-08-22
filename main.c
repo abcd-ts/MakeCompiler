@@ -1,8 +1,6 @@
 // main.c
 // main関数
 
-#include <stdio.h>
-
 #include "9cc.h"
 
 int main(int argc, char **argv) {

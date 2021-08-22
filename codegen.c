@@ -1,7 +1,5 @@
 // codegen.c
 
-#include <stdio.h>
-
 #include "9cc.h"
 
 

@@ -1,3 +1,5 @@
+// 9cc.h
+
 #include <ctype.h>
 #include <stdarg.h>
 #include <stdbool.h>
@@ -31,7 +33,7 @@ struct Token {
 
 // 現在着目しているトークン
 // 特定の関数(consume, expect, expect_number)以外では触らない
-//extern Token *token;
+extern Token *token;
 
 void error(char *fmt, ...);
 
