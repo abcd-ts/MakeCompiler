@@ -111,6 +111,20 @@ Node *mul();
 Node *primary();
 Node *unary();
 
+typedef struct LVar LVar;
+
+// ローカル変数の型
+struct LVar {
+	LVar *next;	// 連結リストで表す
+	char *name;
+	int len;
+	int offset;
+};
+
+extern LVar *locals;
+
+LVar *find_lvar(Token *tok);
+
 // ---------------
 // -- コード生成 --
 // ---------------

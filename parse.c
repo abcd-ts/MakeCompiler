@@ -304,9 +304,39 @@ Node *primary() {
 	if (tok) {
 		Node *node = calloc(1, sizeof(Node));
 		node->kind = ND_LVAR;
-		node->offset = (tok->str[0] - 'a' + 1) * 8; // a:8, b:16, ... z:26*8
+
+		LVar *lvar = find_lvar(tok);
+		if (lvar) {	// 既存の変数
+			node->offset = lvar->offset;
+		}
+		else { // 新たな変数
+			lvar = calloc(1, sizeof(LVar));
+			lvar->next = locals;
+			lvar->name = tok->str;
+			lvar->len = tok->len;
+			if (locals) {
+				lvar->offset = locals->offset + 8;
+			}
+			else {
+				lvar->offset = 8;
+			}
+			node->offset = lvar->offset;
+			locals = lvar;
+		}
 		return node; 
 	}
 
 	return new_node_num(expect_number());
+}
+
+LVar *locals = NULL;
+
+// 変数を名前で検索する．見つからなければNULLを返す
+LVar *find_lvar(Token *tok) {
+	for (LVar *var = locals; var; var = var->next) {
+		if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
+			return var;
+		}
+	}
+	return NULL;
 }
