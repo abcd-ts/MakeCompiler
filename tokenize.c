@@ -3,10 +3,7 @@
 
 #include "9cc.h"
 
-// ----------------
-// --トークナイザ---
-// ----------------
-
+// トークン列
 Token *token;
 
 void error(char *fmt, ...) {
@@ -78,6 +75,8 @@ Token *consume_ident() {
 	return tok;
 }
 
+// "return"の消費を試みる
+// returnトークンなら読み進めてそれを返し，そうでなければNULLを返す
 Token *consume_return() {
 	if (token->kind != TK_RETURN) {
 		return NULL;
@@ -102,6 +101,8 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len) {
 	return tok;
 }
 
+// 英数字またはアンダースコアかどうかを判定する
+// そうなら正の値，それ以外なら0を返す
 int is_alnum(char c) {
 	return ('a' <= c && c <= 'z') ||
 		   ('A' <= c && c <= 'Z') ||

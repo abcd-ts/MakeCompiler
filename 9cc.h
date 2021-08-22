@@ -8,7 +8,7 @@
 #include <string.h>
 
 // ----------------
-// --トークナイザ---
+// -- tokenize.c --
 // ----------------
 
 // トークンの種類
@@ -70,9 +70,9 @@ Token *new_token(TokenKind kind, Token *cur, char *str, int len);
 // headというダミーの要素を用いる，headの次の要素を返す
 void tokenize(char *p);
 
-// ------------
-// --構文解析---
-// ------------
+// -------------
+// -- parse.c --
+// -------------
 
 // ASTのノードの種類
 typedef enum {
@@ -100,11 +100,16 @@ struct Node {
 	int offset;	// ND_LVARのときに使用
 };
 
+// 新しいノードを作成
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs);
 
+// 新しい整数ノードを作成
 Node *new_node_num(int val);
 
+// stmtを格納
 extern Node *code[];
+
+// EBNDで示された規則に対応する関数
 
 void program();
 Node *stmt();
@@ -117,6 +122,7 @@ Node *mul();
 Node *primary();
 Node *unary();
 
+// Local Variables
 typedef struct LVar LVar;
 
 // ローカル変数の型
@@ -127,14 +133,18 @@ struct LVar {
 	int offset;
 };
 
+// ローカル変数の連結リスト
 extern LVar *locals;
 
+// 名前で識別子を探す
 LVar *find_lvar(Token *tok);
 
 // ---------------
-// -- コード生成 --
+// -- codegen.c --
 // ---------------
 
+// nodeに対応するコードを生成
 void gen(Node *node);
 
+// ローカル変数に対応するコードを生成
 void gen_lval(Node *node);

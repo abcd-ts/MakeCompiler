@@ -3,10 +3,7 @@
 
 #include "9cc.h"
 
-// ------------
-// --構文解析---
-// ------------
-
+// 新しいノードを作成する
 Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	Node *node = calloc(1, sizeof(Node));
 	node->kind = kind;
@@ -15,6 +12,7 @@ Node *new_node(NodeKind kind, Node *lhs, Node *rhs) {
 	return node;
 }
 
+// 新しい整数ノードを作成する
 Node *new_node_num(int val) {
 	Node *node = calloc(1, sizeof(Node));
 	node->kind = ND_NUM;
@@ -22,6 +20,7 @@ Node *new_node_num(int val) {
 	return node;
 }
 
+// stmtを保存する
 Node *code[100];
 
 // program = stmt*
