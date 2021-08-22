@@ -39,4 +39,6 @@ assert 4 "a=b=2; a+b;"
 assert 1 "foo=1;"
 assert 6 "foo = 1; bar = 2 + 3; foo + bar;"
 
+assert 5 "return 5; return 8;"
+
 echo OK

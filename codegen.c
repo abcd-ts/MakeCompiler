@@ -2,13 +2,12 @@
 
 #include "9cc.h"
 
-
 // ---------------
 // -- コード生成 --
 // ---------------
 
 void gen(Node *node) {
-	// 整数またはローカル変数，代入式
+	// 整数またはローカル変数，代入式，return文
 	switch (node->kind) {
 	case ND_NUM:
 		printf("    push %d\n", node->val);
@@ -27,6 +26,14 @@ void gen(Node *node) {
 		printf("    pop rax\n");
 		printf("    mov [rax], rdi\n");
 		printf("    push rdi\n");
+		return;
+	case ND_RETURN:
+		gen(node->lhs);
+		
+		printf("    pop rax\n");
+		printf("    mov rsp, rbp\n");
+		printf("    pop rbp\n");
+		printf("    ret\n");
 		return;
 	}
 

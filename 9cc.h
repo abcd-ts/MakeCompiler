@@ -17,6 +17,7 @@ typedef enum {
 	TK_IDENT,		// 識別子
 	TK_NUM,			// 整数トークン
 	TK_EOF,			// 入力の終わり
+	TK_RETURN,		// return
 } TokenKind;
 
 typedef struct Token Token;
@@ -57,6 +58,8 @@ int expect_number();
 
 Token *consume_ident();
 
+Token *consume_return();
+
 // 入力の終わりかどうかを調べる
 bool at_eof();
 
@@ -84,6 +87,7 @@ typedef enum {
 	ND_LE,	// <
 	ND_ASSIGN,	// =
 	ND_LVAR,	// ローカル変数
+	ND_RETURN,	// return
 } NodeKind;
 
 typedef struct Node Node;
