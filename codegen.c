@@ -6,6 +6,9 @@
 // -- コード生成 --
 // ---------------
 
+int num_end = 0;
+int num_else = 0;
+
 void gen(Node *node) {
 	// 整数またはローカル変数，代入式，return文
 	switch (node->kind) {
@@ -34,6 +37,25 @@ void gen(Node *node) {
 		printf("    mov rsp, rbp\n");
 		printf("    pop rbp\n");
 		printf("    ret\n");
+		return;
+	case ND_IF:
+		gen(node->cond);
+		// スタックトップに条件式の結果
+		printf("    pop rax\n");
+		printf("    cmp rax, 0\n");
+		if (!node->rhs) {
+			printf("    je .Lend%d\n", num_end);
+			gen(node->lhs);
+			printf(".Lend%d:\n", num_end++);
+		}
+		else {
+			printf("    je .Lelse%d\n", num_else);
+			gen(node->lhs);
+			printf("    jmp .Lend%d\n", num_end);
+			printf(".Lelse%d:\n", num_else++);
+			gen(node->rhs);
+			printf(".Lend%d:\n", num_end++);
+		}
 		return;
 	}
 

@@ -33,14 +33,33 @@ void program() {
 	code[i] == NULL;	// 末尾を示す
 }
 
-// stmt = expr ';' | return expr ';'
+/*
+	stmt = expr ';' | "return" expr ';'
+		 | "if (" expr ")" stmt ("else" stmt)? 
+*/
 Node *stmt() {
 	Node *node;
 
-	if (consume_return()) {
+	if (consume_return()) {	// return文
 		node = calloc(1, sizeof(Node));
 		node->kind = ND_RETURN;
 		node->lhs = expr();
+	}
+	else if (consume_if()) {	// if文
+		expect("(");
+		node = calloc(1, sizeof(Node));
+		node->kind = ND_IF;
+		node->cond = expr();
+		expect(")");
+		node->lhs = stmt();
+		
+		if (consume_else()) {
+			node->rhs = stmt();
+		}
+		else {
+			node->rhs = NULL;
+		}
+		return node;
 	}
 	else {
 		node = expr();

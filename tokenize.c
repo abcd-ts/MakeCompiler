@@ -86,6 +86,28 @@ Token *consume_return() {
 	return tok;
 }
 
+// "if"の消費を試みる
+// ifトークンなら読み進めてそれを返し，そうでなければNULLを返す
+Token *consume_if() {
+	if (token->kind != TK_IF) {
+		return NULL;
+	}
+	Token *tok = token;
+	token = token->next;
+	return tok;
+}
+
+// "else"の消費を試みる
+// elseトークンなら読み進めてそれを返し，そうでなければNULLを返す
+Token *consume_else() {
+	if (token->kind != TK_ELSE) {
+		return NULL;
+	}
+	Token *tok = token;
+	token = token->next;
+	return tok;
+}
+
 // 入力の終わりかどうかを調べる
 bool at_eof() {
 	return token->kind == TK_EOF;
@@ -148,9 +170,23 @@ void tokenize(char *p) {
 		}
 
 		// return
-		if (strncmp(p, "return", 6) == 0&& !is_alnum(*(p + 6))) {
+		if (strncmp(p, "return", 6) == 0 && !is_alnum(*(p + 6))) {
 			cur = new_token(TK_RETURN, cur, p, 6);
 			p += 6;
+			continue;
+		}
+
+		// if
+		if (strncmp(p, "if", 2) == 0 && !is_alnum(*(p + 2))) {
+			cur = new_token(TK_IF, cur, p, 2);
+			p += 2;
+			continue;
+		}
+
+		// else
+		if (strncmp(p, "else", 4) == 0 && !is_alnum(*(p + 4))) {
+			cur = new_token(TK_ELSE, cur, p, 4);
+			p += 4;
 			continue;
 		}
 
