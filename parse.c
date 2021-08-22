@@ -59,7 +59,7 @@ void expect(char *op) {
 if (token->kind != TK_RESERVED
 		|| strlen(op) != token->len
 		|| memcmp(token->str, op, token->len)) {
-		error_at(token->str, "'%cではありません", op);
+		error_at(token->str, "%sではありません", op);
 	}
 	token = token->next;
 }
@@ -73,6 +73,13 @@ int expect_number() {
 	int val = token->val;
 	token = token->next;
 	return val;
+}
+
+Token *consume_ident() {
+	if (token->kind != TK_IDENT) {
+		return 0;
+	}
+	return token;
 }
 
 // 入力の終わりかどうかを調べる
@@ -113,8 +120,13 @@ Token *tokenize(char *p) {
 		}
 
 		// 長さ1の記号
-		if (strchr("+-*/()<>", *p)) {
+		if (strchr("+-*/()<>=;", *p)) {
 			cur = new_token(TK_RESERVED, cur, p++, 1);
+			continue;
+		}
+
+		if ('a' <= *p && *p <= 'z') {
+			cur = new_token(TK_IDENT, cur, p++, 1);
 			continue;
 		}
 
@@ -152,9 +164,38 @@ Node *new_node_num(int val) {
 	return node;
 }
 
-// expr = equality
+Node *code[100];
+
+// program = stmt*
+void program() {
+	int i = 0;
+
+	while (!at_eof()) {
+		code[i++] = stmt();
+	}
+	code[i] == NULL;	// 末尾を示す
+}
+
+// stmt = expr ';'
+Node *stmt() {
+	Node *node = expr();
+	expect(";");
+	return node;
+}
+
+// expr = assign
 Node *expr() {
-	return equality();
+	return assign();
+}
+
+// assign = equality ("=" assign)?
+Node *assign() {
+	Node *node = equality();
+
+	if (consume("=")) {
+		node = new_node(ND_ASSIGN, node, assign());
+	}
+	return node;
 }
 
 // equality = relational ("==" relational | "!=" relational)*
@@ -242,12 +283,21 @@ Node *unary() {
 	return primary();
 }
 
-// primary = num | '(' expr ')'
+// primary = num | ident | '(' expr ')'
 Node *primary() {
 	if (consume("(")) {
 		Node *node = expr();
 		expect(")");
 		return node;
+	}
+
+	Token *tok = consume_ident();
+
+	if (tok) {
+		Node *node = calloc(1, sizeof(Node));
+		node->kind = ND_ASSIGN;
+		node->offset = (tok->str[0] - 'a' + 1) * 8; // a:8, b:16, ... z:26*8
+		return node; 
 	}
 
 	return new_node_num(expect_number());

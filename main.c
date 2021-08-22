@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
 	token = tokenize(user_input);
 
 	// パースする
-	Node *node = expr();
+	program();
 
 	// アセンブリの前半部分を出力
     printf(".intel_syntax noprefix\n");
@@ -24,7 +24,10 @@ int main(int argc, char **argv) {
     printf("main:\n");
 
 	// ASTからコード生成
-	gen(node);
+	int i;
+	for (i = 0; code[i] != NULL; i++) {
+		gen(code[i]);
+	}
 
 	// スタックトップの値が答え
 	printf("    pop rax\n");
