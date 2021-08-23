@@ -60,4 +60,6 @@ assert 10 "i = 1; sum = 0; while (1) { sum = sum + i; if (i == 4) return sum; i 
 
 assert 2 "foo();"
 
+assert 5 "bar(2, 3);"
+
 echo OK

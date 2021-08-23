@@ -109,13 +109,14 @@ struct Node {
 	Node *cond;	// 条件式
 	Node *inc;	// for文の第3引数
 	
-	Node *next;	// blockで使用するリストの次の要素
+	Node *next;	// block,関数の引数で使用するリストの次の要素
 	
 	int val;	// ND_NUMのときに使用
 	int offset;	// ND_LVARのときに使用
 
 	char *name;
 	int len;
+	Node *arg;
 };
 
 // 新しいノードを作成

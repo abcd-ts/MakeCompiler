@@ -226,7 +226,7 @@ Node *unary() {
 }
 
 // primary = num 
-//		   | ident ("(" ")")?
+//		   | ident ("(" expr* ")")?
 //		   | '(' expr ')'
 Node *primary() {
 	// '(' expr ')'
@@ -241,11 +241,24 @@ Node *primary() {
 
 	if (tok) {
 		Node *node = calloc(1, sizeof(Node));
-		if (consume("(")) {
+		if (consume("(")) {	// 関数呼び出し
 			node->kind = ND_FUNC;
 			node->name = tok->str;
-			node->len = tok->len;
-			expect(")");
+			node->len = tok->len; 
+
+			Node head;
+			head.next = NULL;
+			Node *arg = &head;
+			while (!consume(")") && !at_eof()) {
+				arg->next = expr();
+				arg = arg->next;
+				if (!consume(",")) {
+					expect(")");
+					break;
+				}
+			}
+			node->arg = head.next;
+			
 			return node;
 		}
 		node->kind = ND_LVAR;

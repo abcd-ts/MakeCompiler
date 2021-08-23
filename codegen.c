@@ -107,6 +107,27 @@ static void gen_block(Node *node) {
 	}
 }
 
+static void gen_func(Node *node) {
+	Node *cur = node->arg;
+	int i, n = 0;
+	while (cur) {
+		gen_expr(cur);
+		cur = cur->next;
+		n++;
+	}
+	for (i = 0; i < n; i++) {
+		switch (i) {
+			case 5: pop("r9"); break;
+			case 4: pop("r8"); break;
+			case 3: pop("rcx"); break;
+			case 2: pop("rdx"); break;
+			case 1: pop("rsi"); break;
+			case 0: pop("rdi"); break;
+		}
+	}
+	printf("    call %.*s\n", node->len, node->name);
+}
+
 // expr
 static void gen_expr(Node *node) {
 	// 整数またはローカル変数，代入式，return文
@@ -130,8 +151,7 @@ static void gen_expr(Node *node) {
 		push("rdi");
 		return;
 	case ND_FUNC:
-		printf("    call %.*s\n", node->len, node->name);
-		//pop("rax");
+		gen_func(node);
 		return;
 	}
 
