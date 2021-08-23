@@ -96,19 +96,26 @@ typedef enum {
 	ND_WHILE,
 	ND_FOR,
 	ND_BLOCK,
+	ND_FUNC,
 } NodeKind;
 
 typedef struct Node Node;
 
 struct Node {
 	NodeKind kind;
-	Node *cond;	// 条件式
 	Node *lhs;
 	Node *rhs;
+	
+	Node *cond;	// 条件式
 	Node *inc;	// for文の第3引数
+	
 	Node *next;	// blockで使用するリストの次の要素
+	
 	int val;	// ND_NUMのときに使用
 	int offset;	// ND_LVARのときに使用
+
+	char *name;
+	int len;
 };
 
 // 新しいノードを作成

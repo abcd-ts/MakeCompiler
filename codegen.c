@@ -129,6 +129,10 @@ static void gen_expr(Node *node) {
 		printf("    mov [rax], rdi\n");
 		push("rdi");
 		return;
+	case ND_FUNC:
+		printf("    call %.*s\n", node->len, node->name);
+		//pop("rax");
+		return;
 	}
 
 	// ASTを帰りがけ順で走査
