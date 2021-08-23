@@ -66,7 +66,7 @@ static void gen_while(Node *node) {
 	pop("rax");
 	printf("    cmp rax, 0\n");
 	printf("    je .Lend%d\n", lend);
-	gen_expr(node->lhs);
+	gen_stmt(node->lhs);
 	printf("    jmp .Lbegin%d\n", lbegin);
 	printf(".Lend%d:\n", lend);
 }
