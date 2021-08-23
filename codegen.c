@@ -26,6 +26,7 @@ static void pop(char *arg) {
 static void gen_stmt(Node *node);
 static void gen_expr(Node *node);
 
+// ローカル変数に対応するコードを生成
 static void gen_lval(Node *node) {
 	if (node->kind != ND_LVAR) {
 		error("代入の左辺値が不正です");
@@ -36,6 +37,7 @@ static void gen_lval(Node *node) {
 	push("rax");
 }
 
+// if文に対応するコードを生成
 static void gen_if(Node *node) {
 	int lend = num_end++, lelse = num_else++;
 
@@ -43,12 +45,12 @@ static void gen_if(Node *node) {
 	// スタックトップに条件式の結果
 	pop("rax");
 	printf("    cmp rax, 0\n");
-	if (!node->rhs) {
+	if (!node->rhs) {	// elseなし
 		printf("    je .Lend%d\n", lend);
 		gen_stmt(node->lhs);
 		printf(".Lend%d:\n", lend);
 	}
-	else {
+	else {	// elseあり
 		printf("    je .Lelse%d\n", lelse);
 		gen_stmt(node->lhs);
 		printf("    jmp .Lend%d\n", lend);
@@ -58,6 +60,7 @@ static void gen_if(Node *node) {
 	}
 }
 
+// while文のコードを生成
 static void gen_while(Node *node) {
 	int lbegin = num_begin++, lend = num_end++;
 
@@ -71,6 +74,7 @@ static void gen_while(Node *node) {
 	printf(".Lend%d:\n", lend);
 }
 
+// for文のコードを生成
 static void gen_for(Node *node) {
 	int lbegin = num_begin++, lend = num_end++;
 
@@ -93,6 +97,7 @@ static void gen_for(Node *node) {
 	printf(".Lend%d:\n", lend);
 }
 
+// blockのコードを生成
 static void gen_block(Node *node) {
 	Node *cur = node->next;
 	while (cur) {
@@ -102,6 +107,7 @@ static void gen_block(Node *node) {
 	}
 }
 
+// expr
 static void gen_expr(Node *node) {
 	// 整数またはローカル変数，代入式，return文
 	switch (node->kind) {
@@ -129,6 +135,7 @@ static void gen_expr(Node *node) {
 	gen_expr(node->lhs);
 	gen_expr(node->rhs);
 
+	// 結果がスタックのトップから2つに入っている
 	pop("rdi");
 	pop("rax");
 
@@ -167,16 +174,17 @@ static void gen_expr(Node *node) {
 		printf("    movzb rax, al\n");
 		break;
 	}
-
+	// 演算結果をスタックにプッシュ
 	push("rax");
 }
 
+// stmt
 static void gen_stmt(Node *node) {
 	int lbegin, lend, lelse;
 	switch (node->kind) {
 	case ND_RETURN:
 		gen_expr(node->lhs);
-		
+		// 結果がスタックトップに入っている
 		printf("    pop rax\n");
 		printf("    mov rsp, rbp\n");
 		printf("    pop rbp\n");
@@ -220,6 +228,7 @@ void codegen() {
 
 		// 1つの式の評価結果がスタックに残っているため
 		// これをpopしてraxに入れておく
+		// blockの場合毎回popしているため，ここではpopしない
 		if (depth) pop("rax");
 	}
 

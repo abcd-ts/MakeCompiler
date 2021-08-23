@@ -17,6 +17,7 @@ int main(int argc, char **argv) {
 	tokenize(user_input);
 	program();
 
+	// コード生成
 	codegen();
 	
 	return 0;
