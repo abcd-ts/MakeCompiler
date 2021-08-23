@@ -2,33 +2,46 @@
 
 #include "9cc.h"
 
-// ---------------
-// -- コード生成 --
-// ---------------
+static int num_end = 0;
+static int num_else = 0;
+static int num_begin = 0;
 
-int num_end = 0;
-int num_else = 0;
-int num_begin = 0;
+static int depth;
 
-void gen_stmt(Node *node);
-void gen_expr(Node *node);
+static void push(char *arg) {
+	printf("    push %s\n", arg);
+	depth++;
+}
 
-void gen_lval(Node *node) {
+static void push_num(int n) {
+	printf("    push %d\n", n);
+	depth++;
+}
+
+static void pop(char *arg) {
+	printf("    pop %s\n", arg);
+	depth--;
+}
+
+static void gen_stmt(Node *node);
+static void gen_expr(Node *node);
+
+static void gen_lval(Node *node) {
 	if (node->kind != ND_LVAR) {
 		error("代入の左辺値が不正です");
 	}
 
 	printf("    mov rax, rbp\n");	// raxにベースポインタの値を読み込む
 	printf("    sub rax, %d\n", node->offset);	// raxにオフセットを減算
-	printf("    push rax\n");
+	push("rax");
 }
 
-void gen_if(Node *node) {
+static void gen_if(Node *node) {
 	int lend = num_end++, lelse = num_else++;
 
 	gen_expr(node->cond);
 	// スタックトップに条件式の結果
-	printf("    pop rax\n");
+	pop("rax");
 	printf("    cmp rax, 0\n");
 	if (!node->rhs) {
 		printf("    je .Lend%d\n", lend);
@@ -45,12 +58,12 @@ void gen_if(Node *node) {
 	}
 }
 
-void gen_while(Node *node) {
+static void gen_while(Node *node) {
 	int lbegin = num_begin++, lend = num_end++;
 
 	printf(".Lbegin%d:\n", lbegin);
 	gen_expr(node->cond);
-	printf("    pop rax\n");
+	pop("rax");
 	printf("    cmp rax, 0\n");
 	printf("    je .Lend%d\n", lend);
 	gen_expr(node->lhs);
@@ -58,7 +71,7 @@ void gen_while(Node *node) {
 	printf(".Lend%d:\n", lend);
 }
 
-void gen_for(Node *node) {
+static void gen_for(Node *node) {
 	int lbegin = num_begin++, lend = num_end++;
 
 	if (node->lhs) {
@@ -68,7 +81,7 @@ void gen_for(Node *node) {
 	printf(".Lbegin%d:\n", lbegin);
 	if (node->cond) {
 		gen_expr(node->cond);
-		printf("    pop rax\n");
+		pop("rax");
 		printf("    cmp rax, 0\n");
 		printf("    je .Lend%d\n", lend);
 	}
@@ -80,26 +93,35 @@ void gen_for(Node *node) {
 	printf(".Lend%d:\n", lend);
 }
 
-void gen_expr(Node *node) {
+static void gen_block(Node *node) {
+	Node *cur = node->next;
+	while (cur) {
+		gen_stmt(cur);
+		pop("rax");
+		cur = cur->next;
+	}
+}
+
+static void gen_expr(Node *node) {
 	// 整数またはローカル変数，代入式，return文
 	switch (node->kind) {
 	case ND_NUM:
-		printf("    push %d\n", node->val);
+		push_num(node->val);
 		return;
 	case ND_LVAR:	// ローカル変数の場合，アドレスから値を取り出す
 		gen_lval(node);
-		printf("    pop rax\n");
+		pop("rax");
 		printf("    mov rax, [rax]\n");
-		printf("    push rax\n");
+		push("rax");
 		return;
 	case ND_ASSIGN:
 		gen_lval(node->lhs);
 		gen_expr(node->rhs);
 
-		printf("    pop rdi\n");
-		printf("    pop rax\n");
+		pop("rdi");
+		pop("rax");
 		printf("    mov [rax], rdi\n");
-		printf("    push rdi\n");
+		push("rdi");
 		return;
 	}
 
@@ -107,8 +129,8 @@ void gen_expr(Node *node) {
 	gen_expr(node->lhs);
 	gen_expr(node->rhs);
 
-	printf("    pop rdi\n");
-	printf("    pop rax\n");
+	pop("rdi");
+	pop("rax");
 
 	switch (node->kind) {
 	case ND_ADD:
@@ -146,10 +168,10 @@ void gen_expr(Node *node) {
 		break;
 	}
 
-	printf("    push rax\n");
+	push("rax");
 }
 
-void gen_stmt(Node *node) {
+static void gen_stmt(Node *node) {
 	int lbegin, lend, lelse;
 	switch (node->kind) {
 	case ND_RETURN:
@@ -169,12 +191,17 @@ void gen_stmt(Node *node) {
 	case ND_FOR:
 		gen_for(node);
 		return;
+	case ND_BLOCK:
+		gen_block(node);
+		return;
 	default:
 		gen_expr(node);
 	}
 }
 
 void codegen() {
+	depth = 0;
+
 	// アセンブリの前半部分を出力
     printf(".intel_syntax noprefix\n");
     printf(".globl main\n");
@@ -193,7 +220,7 @@ void codegen() {
 
 		// 1つの式の評価結果がスタックに残っているため
 		// これをpopしてraxに入れておく
-		printf("    pop rax\n");
+		if (depth) pop("rax");
 	}
 
 	// epilogue

@@ -38,6 +38,7 @@ void program() {
 		 | "if (" expr ")" stmt ("else" stmt)? 
 		 | "while (" expr ")" stmt
 		 | "for (" expr? ";" expr? ";" expr? ")" stmt
+		 | "{" stmt* "}"
 */
 Node *stmt() {
 	Node *node;
@@ -104,6 +105,17 @@ Node *stmt() {
 		node->rhs = stmt();
 		
 		return node;
+	}
+	else if (consume("{")) {
+		Node *head = calloc(1, sizeof(Node));
+		head->kind = ND_BLOCK;
+		Node *cur = head;
+		while (!consume("}") || !at_eof()) {
+			cur->next = stmt();
+			cur = cur->next;
+		}
+		cur->next = NULL;
+		return head;
 	}
 	else {
 		node = expr();
