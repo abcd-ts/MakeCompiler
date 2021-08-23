@@ -60,16 +60,9 @@ void expect(char *op);
 // 数値でない場合，エラーを報告する．
 int expect_number();
 
-Token *consume_ident();
-
-Token *consume_return();
-
-Token *consume_if();
-Token *consume_else();
-
-Token *consume_while();
-
-Token *consume_for();
+// 引数のトークン種類と一致するトークンかどうか調べる
+// 一致すればそれを返し読み進め，しなければNULLを返す
+Token *consume_token(TokenKind kind);
 
 // 入力の終わりかどうかを調べる
 bool at_eof();

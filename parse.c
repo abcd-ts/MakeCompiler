@@ -43,12 +43,12 @@ void program() {
 Node *stmt() {
 	Node *node;
 
-	if (consume_return()) {	// return文
+	if (consume_token(TK_RETURN)) {	// return文
 		node = calloc(1, sizeof(Node));
 		node->kind = ND_RETURN;
 		node->lhs = expr();
 	}
-	else if (consume_if()) {	// if文
+	else if (consume_token(TK_IF)) {	// if文
 		expect("(");
 		node = calloc(1, sizeof(Node));
 		node->kind = ND_IF;
@@ -56,7 +56,7 @@ Node *stmt() {
 		expect(")");
 		node->lhs = stmt();
 
-		if (consume_else()) {
+		if (consume_token(TK_ELSE)) {
 			node->rhs = stmt();
 		}
 		else {
@@ -64,7 +64,7 @@ Node *stmt() {
 		}
 		return node;
 	}
-	else if (consume_while()) {
+	else if (consume_token(TK_WHILE)) {
 		expect("(");
 		node = calloc(1, sizeof(Node));
 		node->kind = ND_WHILE;
@@ -74,7 +74,7 @@ Node *stmt() {
 
 		return node;
 	}
-	else if (consume_for()) {
+	else if (consume_token(TK_FOR)) {
 		expect("(");
 		node = calloc(1, sizeof(Node));
 		node->kind = ND_FOR;
@@ -235,7 +235,7 @@ Node *primary() {
 	}
 
 	// ident
-	Token *tok = consume_ident();
+	Token *tok = consume_token(TK_IDENT);
 
 	if (tok) {
 		Node *node = calloc(1, sizeof(Node));

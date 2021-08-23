@@ -64,65 +64,10 @@ int expect_number() {
 	return val;
 }
 
-// 識別子の消費を試みる
-// 識別子ならトークンを読み進めて識別子トークンを返し，そうでなければNULLを返す
-Token *consume_ident() {
-	if (token->kind != TK_IDENT) {
-		return NULL;
-	}
-	Token *tok = token;
-	token = token->next;
-	return tok;
-}
-
-// "return"の消費を試みる
-// returnトークンなら読み進めてそれを返し，そうでなければNULLを返す
-Token *consume_return() {
-	if (token->kind != TK_RETURN) {
-		return NULL;
-	}
-	Token *tok = token;
-	token = token->next;
-	return tok;
-}
-
-// "if"の消費を試みる
-// ifトークンなら読み進めてそれを返し，そうでなければNULLを返す
-Token *consume_if() {
-	if (token->kind != TK_IF) {
-		return NULL;
-	}
-	Token *tok = token;
-	token = token->next;
-	return tok;
-}
-
-// "else"の消費を試みる
-// elseトークンなら読み進めてそれを返し，そうでなければNULLを返す
-Token *consume_else() {
-	if (token->kind != TK_ELSE) {
-		return NULL;
-	}
-	Token *tok = token;
-	token = token->next;
-	return tok;
-}
-
-// "while"の消費を試みる
-// whileトークンなら読み進めてそれを返し，そうでなければNULLを返す
-Token *consume_while() {
-	if (token->kind != TK_WHILE) {
-		return NULL;
-	}
-	Token *tok = token;
-	token = token->next;
-	return tok;
-}
-
-// "for"の消費を試みる
-// forトークンなら読み進めてそれを返し，そうでなければNULLを返す
-Token *consume_for() {
-	if (token->kind != TK_FOR) {
+// 引数のトークン種類と一致するトークンかどうか調べる
+// 一致すればそれを返し読み進め，しなければNULLを返す
+Token *consume_token(TokenKind kind) {
+	if (token->kind != kind) {
 		return NULL;
 	}
 	Token *tok = token;
