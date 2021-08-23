@@ -61,5 +61,6 @@ assert 10 "i = 1; sum = 0; while (1) { sum = sum + i; if (i == 4) return sum; i 
 assert 2 "foo();"
 
 assert 5 "bar(2, 3);"
+assert 21 "goo(1, 2, 3, 4, 5, 6);"
 
 echo OK

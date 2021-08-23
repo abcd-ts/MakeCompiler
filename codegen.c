@@ -107,6 +107,9 @@ static void gen_block(Node *node) {
 	}
 }
 
+static char *argreg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
+
+// 関数呼び出しのコードを生成
 static void gen_func(Node *node) {
 	Node *cur = node->arg;
 	int i, n = 0;
@@ -116,15 +119,16 @@ static void gen_func(Node *node) {
 		n++;
 	}
 	for (i = 0; i < n; i++) {
-		switch (i) {
-			case 5: pop("r9"); break;
-			case 4: pop("r8"); break;
-			case 3: pop("rcx"); break;
-			case 2: pop("rdx"); break;
-			case 1: pop("rsi"); break;
-			case 0: pop("rdi"); break;
-		}
+		pop(argreg[i]);
 	}
+	// rspを16の倍数に
+	printf("    mov rbx, 0x000F\n");
+	printf("    and rbx, rsp\n");
+	printf("    cmp rbx, 0\n");
+	printf("    je .L%.*s\n", node->len, node->name);
+	printf("    sub rsp, 8\n");
+	printf(".L%.*s:\n", node->len, node->name);
+
 	printf("    call %.*s\n", node->len, node->name);
 }
 
