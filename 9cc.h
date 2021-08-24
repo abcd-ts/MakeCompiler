@@ -134,6 +134,7 @@ extern Node *code[];
 // EBNDで示された規則に対応する関数
 
 void program();
+Node *def();
 Node *stmt();
 Node *expr();
 Node *assign();

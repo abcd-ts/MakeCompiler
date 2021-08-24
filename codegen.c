@@ -67,6 +67,7 @@ static void gen_while(Node *node) {
 	printf(".Lbegin%d:\n", lbegin);
 	gen_expr(node->cond);
 	pop("rax");
+
 	printf("    cmp rax, 0\n");
 	printf("    je .Lend%d\n", lend);
 	gen_stmt(node->lhs);
@@ -80,18 +81,21 @@ static void gen_for(Node *node) {
 
 	if (node->lhs) {
 		gen_expr(node->lhs);
+		pop("rax");
 	}
 
 	printf(".Lbegin%d:\n", lbegin);
 	if (node->cond) {
 		gen_expr(node->cond);
 		pop("rax");
+
 		printf("    cmp rax, 0\n");
 		printf("    je .Lend%d\n", lend);
 	}
 	gen_stmt(node->rhs);
 	if (node->inc) {
 		gen_expr(node->inc);
+		pop("rax");
 	}
 	printf("    jmp .Lbegin%d\n", lbegin);
 	printf(".Lend%d:\n", lend);
@@ -102,7 +106,7 @@ static void gen_block(Node *node) {
 	Node *cur = node->next;
 	while (cur) {
 		gen_stmt(cur);
-		pop("rax");
+		//pop("rax");
 		cur = cur->next;
 	}
 }
@@ -156,6 +160,7 @@ static void gen_expr(Node *node) {
 		return;
 	case ND_FUNCALL:
 		gen_funcall(node);
+		push("rax");
 		return;
 	}
 
@@ -213,7 +218,9 @@ static void gen_stmt(Node *node) {
 	case ND_RETURN:
 		gen_expr(node->lhs);
 		// 結果がスタックトップに入っている
-		printf("    pop rax\n");
+		pop("rax");
+
+		// epilogue
 		printf("    mov rsp, rbp\n");
 		printf("    pop rbp\n");
 		printf("    ret\n");
@@ -232,16 +239,13 @@ static void gen_stmt(Node *node) {
 		return;
 	default:
 		gen_expr(node);
+		pop("rax");
 	}
 }
 
-void codegen() {
-	depth = 0;
-
-	// アセンブリの前半部分を出力
-    printf(".intel_syntax noprefix\n");
-    printf(".globl main\n");
-    printf("main:\n");
+void gen_def_func(Node *node) {
+	printf(".globl %.*s\n", node->len, node->name);
+	printf("%.*s:\n", node->len, node->name);
 
 	// prologue
 	// 変数26個(a~z)分の領域を確保する
@@ -249,20 +253,25 @@ void codegen() {
 	printf("    mov rbp, rsp\n");
 	printf("    sub rsp, 208\n");
 
-	// ASTからコード生成
-	int i;
-	for (i = 0; code[i] != NULL; i++) {
-		gen_stmt(code[i]);
-
-		// 1つの式の評価結果がスタックに残っているため
-		// これをpopしてraxに入れておく
-		// blockの場合毎回popしているため，ここではpopしない
-		if (depth) pop("rax");
-	}
+	gen_block(node->body);
 
 	// epilogue
 	// スタックトップの値が答え
 	printf("    mov rsp, rbp\n");
 	printf("    pop rbp\n");
 	printf("    ret\n");
+}
+
+void codegen() {
+	depth = 0;
+
+	// アセンブリの前半部分を出力
+    printf(".intel_syntax noprefix\n");
+    
+	// ASTからコード生成
+	int i;
+	for (i = 0; code[i] != NULL; i++) {
+		gen_def_func(code[i]);
+		if (depth) error("スタックの深さが異常です");
+	}
 }

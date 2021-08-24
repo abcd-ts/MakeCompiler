@@ -23,14 +23,62 @@ Node *new_node_num(int val) {
 // defを保存する
 Node *code[100];
 
-// program = stmt*
+// program = def*
 void program() {
 	int i = 0;
 
 	while (!at_eof()) {
-		code[i++] = stmt();
+		code[i++] = def();
 	}
 	code[i] == NULL;	// 末尾を示す
+}
+
+// def = ident '(' expr* ')' '{' stmt* '}'
+Node *def() {
+	// ident ("(" ")")?
+	Token *tok = consume_token(TK_IDENT);
+
+	if (!tok) {
+		error("識別子ではありません");
+	}
+
+	Node *node = calloc(1, sizeof(Node));
+	expect("(");
+	node->kind = ND_FUNC;
+	node->name = tok->str;
+	node->len = tok->len;
+
+	// 引数
+
+	expect(")");
+	
+	expect("{");
+	
+	Node *block_head = calloc(1, sizeof(Node));
+	block_head->kind = ND_BLOCK;
+	Node *cur = block_head;
+	while (!consume("}") || !at_eof()) {
+		cur->next = stmt();
+		cur = cur->next;
+	}
+	cur->next = NULL;
+
+	node->body = block_head;
+
+	//Node head;
+	//head.next = NULL;
+	//Node *arg = &head;
+	//while (!consume(")") && !at_eof()) {
+	//	arg->next = expr();
+	//	arg = arg->next;
+	//	if (!consume(",")) {
+	//		expect(")");
+	//		break;
+	//	}
+	//}
+	//node->arg = head.next;
+	
+	return node;
 }
 
 /*
