@@ -63,4 +63,6 @@ assert 2 "main() {foo();}"
 assert 5 "main() {bar(2, 3);}"
 # assert 21 "goo(1, 2, 3, 4, 5, 6);"
 
+assert 5 "retfive() {return 5;} main() {retfive();}"
+
 echo OK

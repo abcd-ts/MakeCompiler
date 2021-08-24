@@ -52,12 +52,13 @@ Node *def() {
 
 	expect(")");
 	
+	// "{" stmt* "}"
 	expect("{");
 	
 	Node *block_head = calloc(1, sizeof(Node));
 	block_head->kind = ND_BLOCK;
 	Node *cur = block_head;
-	while (!consume("}") || !at_eof()) {
+	while ((!consume("}")) && (!at_eof())) {
 		cur->next = stmt();
 		cur = cur->next;
 	}
@@ -81,13 +82,13 @@ Node *def() {
 	return node;
 }
 
-/*
-	stmt = expr ';' | "return" expr ';'
-		 | "if (" expr ")" stmt ("else" stmt)? 
-		 | "while (" expr ")" stmt
-		 | "for (" expr? ";" expr? ";" expr? ")" stmt
-		 | "{" stmt* "}"
-*/
+
+// stmt = expr ';' | "return" expr ';'
+//		| "if (" expr ")" stmt ("else" stmt)? 
+//		| "while (" expr ")" stmt
+//		| "for (" expr? ";" expr? ";" expr? ")" stmt
+//		| "{" stmt* "}"
+
 Node *stmt() {
 	Node *node;
 
@@ -158,7 +159,7 @@ Node *stmt() {
 		Node *head = calloc(1, sizeof(Node));
 		head->kind = ND_BLOCK;
 		Node *cur = head;
-		while (!consume("}") || !at_eof()) {
+		while (!consume("}") && !at_eof()) {
 			cur->next = stmt();
 			cur = cur->next;
 		}
