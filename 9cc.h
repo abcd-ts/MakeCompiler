@@ -96,7 +96,8 @@ typedef enum {
 	ND_WHILE,
 	ND_FOR,
 	ND_BLOCK,
-	ND_FUNC,
+	ND_FUNCALL,	// 関数呼び出し
+	ND_FUNC,	// 関数定義
 } NodeKind;
 
 typedef struct Node Node;
@@ -117,6 +118,8 @@ struct Node {
 	char *name;
 	int len;
 	Node *arg;
+
+	Node *body;	// 関数の本体
 };
 
 // 新しいノードを作成
@@ -157,6 +160,17 @@ extern LVar *locals;
 
 // 名前で識別子を探す
 LVar *find_lvar(Token *tok);
+
+typedef struct Func Func;
+
+struct Func {
+	char *name;
+	int argc;
+	Node *body;
+	Func *next;
+};
+
+extern Func *functions;
 
 // ---------------
 // -- codegen.c --

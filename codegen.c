@@ -110,7 +110,7 @@ static void gen_block(Node *node) {
 static char *argreg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 // 関数呼び出しのコードを生成
-static void gen_func(Node *node) {
+static void gen_funcall(Node *node) {
 	Node *cur = node->arg;
 	int i, n = 0;
 	while (cur) {
@@ -154,8 +154,8 @@ static void gen_expr(Node *node) {
 		printf("    mov [rax], rdi\n");
 		push("rdi");
 		return;
-	case ND_FUNC:
-		gen_func(node);
+	case ND_FUNCALL:
+		gen_funcall(node);
 		return;
 	}
 

@@ -20,7 +20,7 @@ Node *new_node_num(int val) {
 	return node;
 }
 
-// stmtを保存する
+// defを保存する
 Node *code[100];
 
 // program = stmt*
@@ -242,7 +242,7 @@ Node *primary() {
 	if (tok) {
 		Node *node = calloc(1, sizeof(Node));
 		if (consume("(")) {	// 関数呼び出し
-			node->kind = ND_FUNC;
+			node->kind = ND_FUNCALL;
 			node->name = tok->str;
 			node->len = tok->len; 
 
