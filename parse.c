@@ -47,17 +47,22 @@ Node *def() {
 	node->kind = ND_FUNC;
 	node->name = tok->str;
 	node->len = tok->len;
-
-	// 引数
-
-	expect(")");
-	
-	// "{" stmt* "}"
-	expect("{");
 	
 	Node *block_head = calloc(1, sizeof(Node));
 	block_head->kind = ND_BLOCK;
 	Node *cur = block_head;
+
+	// 引数
+	while (!consume(")") && !at_eof()) {
+		tok = consume_token(TK_IDENT);
+		if (!consume(",")) {
+			expect(")");
+			break;
+		}
+	}
+
+	// "{" stmt* "}"
+	expect("{");
 	while ((!consume("}")) && (!at_eof())) {
 		cur->next = stmt();
 		cur = cur->next;
@@ -65,19 +70,6 @@ Node *def() {
 	cur->next = NULL;
 
 	node->body = block_head;
-
-	//Node head;
-	//head.next = NULL;
-	//Node *arg = &head;
-	//while (!consume(")") && !at_eof()) {
-	//	arg->next = expr();
-	//	arg = arg->next;
-	//	if (!consume(",")) {
-	//		expect(")");
-	//		break;
-	//	}
-	//}
-	//node->arg = head.next;
 	
 	return node;
 }
