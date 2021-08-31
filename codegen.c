@@ -115,7 +115,7 @@ static char *argreg[] = {"rdi", "rsi", "rdx", "rcx", "r8", "r9"};
 
 // 関数呼び出しのコードを生成
 static void gen_funcall(Node *node) {
-	Node *cur = node->arg;
+	Node *cur = node->args;
 	int i, n = 0;
 	while (cur) {
 		gen_expr(cur);
@@ -252,6 +252,17 @@ void gen_def_func(Node *node) {
 	printf("    push rbp\n");
 	printf("    mov rbp, rsp\n");
 	printf("    sub rsp, 208\n");
+
+	Node *arg = node->args;
+	int i = 0;
+
+	while (arg) {
+		printf("    mov rax, rbp\n");
+		printf("    sub rax, %d\n", arg->offset);
+		printf("    mov [rax], %s\n", argreg[i++]);
+		
+		arg = arg->next;
+	}
 
 	gen_block(node->body);
 

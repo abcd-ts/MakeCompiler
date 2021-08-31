@@ -98,6 +98,7 @@ typedef enum {
 	ND_BLOCK,
 	ND_FUNCALL,	// 関数呼び出し
 	ND_FUNC,	// 関数定義
+	ND_ARG,		// 関数の引数
 } NodeKind;
 
 typedef struct Node Node;
@@ -117,8 +118,8 @@ struct Node {
 
 	char *name;
 	int len;
-	Node *arg;
 
+	Node *args;	// 関数の引数
 	Node *body;	// 関数の本体
 };
 

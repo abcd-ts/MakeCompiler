@@ -58,18 +58,37 @@ Node *def() {
 
 	functions = func;
 	
-	Node *block_head = calloc(1, sizeof(Node));
-	block_head->kind = ND_BLOCK;
-	Node *cur = block_head;
+	Node head;
+	head.next = NULL;
+	Node *arg = &head;
 
 	// 引数
 	while (!consume(")") && !at_eof()) {
 		tok = consume_token(TK_IDENT);
+
+		if (!tok) {
+			error("識別子ではありません");
+		}
+
+		LVar *lvar = new_lvar(tok);
+		arg->next = calloc(1, sizeof(Node));
+		arg = arg->next;
+
+		arg->kind = ND_ARG;
+		arg->offset = lvar->offset;
+		
 		if (!consume(",")) {
 			expect(")");
 			break;
 		}
 	}
+	arg->next = NULL;
+
+	node->args = head.next;
+
+	Node *block_head = calloc(1, sizeof(Node));
+	block_head->kind = ND_BLOCK;
+	Node *cur = block_head;
 
 	// "{" stmt* "}"
 	expect("{");
@@ -308,7 +327,7 @@ Node *primary() {
 					break;
 				}
 			}
-			node->arg = head.next;
+			node->args = head.next;
 			
 			return node;
 		}
@@ -318,7 +337,6 @@ Node *primary() {
 
 		if (!lvar) {	// 新たな変数
 			lvar = new_lvar(tok);
-			functions->locals = lvar;
 		}
 		
 		node->offset = lvar->offset;
@@ -353,4 +371,7 @@ LVar *new_lvar(Token *tok) {
 	else {
 		lvar->offset = 8;
 	}
+
+	functions->locals = lvar;
+	return lvar;
 }
