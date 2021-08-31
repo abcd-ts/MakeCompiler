@@ -99,6 +99,8 @@ typedef enum {
 	ND_FUNCALL,	// 関数呼び出し
 	ND_FUNC,	// 関数定義
 	ND_ARG,		// 関数の引数
+	ND_ADDR,	// 単項&
+	ND_DEREF,	// 単項*
 } NodeKind;
 
 typedef struct Node Node;

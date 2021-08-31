@@ -67,4 +67,6 @@ assert 5 "retfive() {return 5;} main() {retfive();}"
 
 assert 5 "bar(i, j) {return i + j;} main() {i = 11; j = 7; return bar(2, 3);}"
 
+assert 3 "main() {x = 3; y = &x; return *y;}"
+
 echo OK

@@ -162,6 +162,15 @@ static void gen_expr(Node *node) {
 		gen_funcall(node);
 		push("rax");
 		return;
+	case ND_ADDR:
+		gen_lval(node->lhs);
+		return;
+	case ND_DEREF:
+		gen_expr(node->lhs);
+		pop("rax");
+		printf("    mov rax, [rax]\n");
+		push("rax");
+		return;
 	}
 
 	// ASTを帰りがけ順で走査
