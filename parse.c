@@ -33,6 +33,8 @@ void program() {
 	code[i] == NULL;	// 末尾を示す
 }
 
+Func *functions = NULL;
+
 // def = ident '(' expr* ')' '{' stmt* '}'
 Node *def() {
 	// ident ("(" ")")?
@@ -42,11 +44,19 @@ Node *def() {
 		error("識別子ではありません");
 	}
 
-	Node *node = calloc(1, sizeof(Node));
 	expect("(");
+
+	Node *node = calloc(1, sizeof(Node));	
 	node->kind = ND_FUNC;
 	node->name = tok->str;
 	node->len = tok->len;
+
+	Func *func = calloc(1, sizeof(Func));
+	func->node = node;
+	func->next = functions;
+	func->locals = NULL;
+
+	functions = func;
 	
 	Node *block_head = calloc(1, sizeof(Node));
 	block_head->kind = ND_BLOCK;
@@ -310,17 +320,17 @@ Node *primary() {
 		}
 		else { // 新たな変数
 			lvar = calloc(1, sizeof(LVar));
-			lvar->next = locals;
+			lvar->next = functions->locals;
 			lvar->name = tok->str;
 			lvar->len = tok->len;
-			if (locals) {
-				lvar->offset = locals->offset + 8;
+			if (functions->locals) {
+				lvar->offset = functions->locals->offset + 8;
 			}
 			else {
 				lvar->offset = 8;
 			}
 			node->offset = lvar->offset;
-			locals = lvar;
+			functions->locals = lvar;
 		}
 
 		return node; 
@@ -331,11 +341,11 @@ Node *primary() {
 }
 
 // ローカル変数の連結リスト
-LVar *locals = NULL;
+//LVar *locals = NULL;
 
 // 変数を名前で検索する．見つからなければNULLを返す
 LVar *find_lvar(Token *tok) {
-	for (LVar *var = locals; var; var = var->next) {
+	for (LVar *var = functions->locals; var; var = var->next) {
 		if (var->len == tok->len && !memcmp(tok->str, var->name, var->len)) {
 			return var;
 		}

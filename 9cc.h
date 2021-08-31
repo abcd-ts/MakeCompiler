@@ -159,19 +159,20 @@ struct LVar {
 // ローカル変数の連結リスト
 extern LVar *locals;
 
-// 名前で識別子を探す
-LVar *find_lvar(Token *tok);
 
 typedef struct Func Func;
 
 struct Func {
-	char *name;
-	int argc;
-	Node *body;
-	Func *next;
+	Node *node;	// 関数ノード
+	
+	Func *next; // 次の関数
+	LVar *locals;	// 関数のローカル変数
 };
 
 extern Func *functions;
+
+// 名前で識別子を探す
+LVar *find_lvar(Token *tok);
 
 // ---------------
 // -- codegen.c --
