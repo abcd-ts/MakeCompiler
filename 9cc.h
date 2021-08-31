@@ -174,6 +174,9 @@ extern Func *functions;
 // 名前で識別子を探す
 LVar *find_lvar(Token *tok);
 
+// トークンを元に新たな変数を作成
+LVar *new_lvar(Token *tok);
+
 // ---------------
 // -- codegen.c --
 // ---------------

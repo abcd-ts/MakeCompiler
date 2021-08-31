@@ -315,23 +315,13 @@ Node *primary() {
 		node->kind = ND_LVAR;
 
 		LVar *lvar = find_lvar(tok);
-		if (lvar) {	// 既存の変数
-			node->offset = lvar->offset;
-		}
-		else { // 新たな変数
-			lvar = calloc(1, sizeof(LVar));
-			lvar->next = functions->locals;
-			lvar->name = tok->str;
-			lvar->len = tok->len;
-			if (functions->locals) {
-				lvar->offset = functions->locals->offset + 8;
-			}
-			else {
-				lvar->offset = 8;
-			}
-			node->offset = lvar->offset;
+
+		if (!lvar) {	// 新たな変数
+			lvar = new_lvar(tok);
 			functions->locals = lvar;
 		}
+		
+		node->offset = lvar->offset;
 
 		return node; 
 	}
@@ -339,9 +329,6 @@ Node *primary() {
 	// num
 	return new_node_num(expect_number());
 }
-
-// ローカル変数の連結リスト
-//LVar *locals = NULL;
 
 // 変数を名前で検索する．見つからなければNULLを返す
 LVar *find_lvar(Token *tok) {
@@ -351,4 +338,19 @@ LVar *find_lvar(Token *tok) {
 		}
 	}
 	return NULL;
+}
+
+LVar *new_lvar(Token *tok) {
+	LVar *lvar = calloc(1, sizeof(LVar));
+	
+	lvar->next = functions->locals;
+	lvar->name = tok->str;
+	lvar->len = tok->len;
+	
+	if (functions->locals) {
+		lvar->offset = functions->locals->offset + 8;
+	}
+	else {
+		lvar->offset = 8;
+	}
 }
