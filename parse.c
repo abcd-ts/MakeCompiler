@@ -35,8 +35,12 @@ void program() {
 
 Func *functions = NULL;
 
-// def = ident '(' expr* ')' '{' stmt* '}'
+// def = "int" ident '(' expr* ')' '{' stmt* '}'
 Node *def() {
+	if (!consume_token(TK_INTTYPE)) {
+		error("型名がありません");
+	}
+
 	// ident ("(" ")")?
 	Token *tok = consume_token(TK_IDENT);
 
@@ -64,6 +68,10 @@ Node *def() {
 
 	// 引数
 	while (!consume(")") && !at_eof()) {
+	
+		if (!consume_token(TK_INTTYPE)) {
+			error("引数の型がありません");
+		}
 		tok = consume_token(TK_IDENT);
 
 		if (!tok) {
@@ -109,7 +117,7 @@ Node *def() {
 //		| "while (" expr ")" stmt
 //		| "for (" expr? ";" expr? ";" expr? ")" stmt
 //		| "{" stmt* "}"
-
+//		| "int" ident ';'
 Node *stmt() {
 	Node *node;
 
@@ -186,6 +194,24 @@ Node *stmt() {
 		}
 		cur->next = NULL;
 		return head;
+	}
+	else if (consume_token(TK_INTTYPE)) {
+		Token *tok = consume_token(TK_IDENT);
+		if (!tok) {
+			error("識別子ではありません");
+		}
+		LVar *lvar = find_lvar(tok);
+		if (lvar) {
+			error("すでに定義された変数です");
+		}
+		lvar = new_lvar(tok);
+		
+		node = calloc(1, sizeof(Node));
+		node->kind = ND_LVAR;
+		node->name = tok->str;
+		node->len = tok->len;
+
+		node->offset = lvar->offset;
 	}
 	else {
 		node = expr();
@@ -341,8 +367,8 @@ Node *primary() {
 
 		LVar *lvar = find_lvar(tok);
 
-		if (!lvar) {	// 新たな変数
-			lvar = new_lvar(tok);
+		if (!lvar) {
+			error("定義されていない変数です");
 		}
 		
 		node->offset = lvar->offset;

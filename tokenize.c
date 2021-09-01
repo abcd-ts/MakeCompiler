@@ -99,6 +99,11 @@ int is_alnum(char c) {
 		   (c == '_');
 }
 
+char *keywords[] = {
+	"return", "if", "else", "while", "for", "int", 
+	NULL
+};
+
 // トークナイズする
 // headというダミーの要素を用いる，headの次の要素を返す
 void tokenize(char *p) {
@@ -167,6 +172,12 @@ void tokenize(char *p) {
 		// for
 		if (strncmp(p, "for", 3) == 0 && !is_alnum(*(p + 3))) {
 			cur = new_token(TK_FOR, cur, p, 3);
+			p += 3;
+			continue;
+		}
+
+		if (strncmp(p, "int", 3) == 0 && !is_alnum(*(p + 3))) {
+			cur = new_token(TK_INTTYPE, cur, p, 3);
 			p += 3;
 			continue;
 		}
